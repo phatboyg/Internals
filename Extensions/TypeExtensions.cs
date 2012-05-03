@@ -27,14 +27,48 @@
             }
         }
 
+        public static IEnumerable<PropertyInfo> GetAllStaticProperties(this Type type)
+        {
+            const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy;
+
+            foreach (PropertyInfo propertyInfo in type.GetProperties(bindingFlags))
+            {
+                yield return propertyInfo;
+            }
+        }
+
         /// <summary>
-        /// Determines if the type can be instantiated
+        /// Determines if a type is neither abstract nor an interface and can be constructed.
         /// </summary>
-        /// <param name="type">The type</param>
-        /// <returns>True if the type is concrete, otherwise false</returns>
+        /// <param name="type">The type to check</param>
+        /// <returns>True if the type can be constructed, otherwise false.</returns>
         public static bool IsConcreteType(this Type type)
         {
             return !type.IsAbstract && !type.IsInterface;
+        }
+
+        /// <summary>
+        /// Determines if a type can be constructed, and if it can, additionally determines
+        /// if the type can be assigned to the specified type.
+        /// </summary>
+        /// <param name="type">The type to evaluate</param>
+        /// <param name="assignableType">The type to which the subject type should be checked against</param>
+        /// <returns>True if the type is concrete and can be assigned to the assignableType, otherwise false.</returns>
+        public static bool IsConcreteAndAssignableTo(this Type type, Type assignableType)
+        {
+            return IsConcreteType(type) && assignableType.IsAssignableFrom(type);
+        }
+
+        /// <summary>
+        /// Determines if a type can be constructed, and if it can, additionally determines
+        /// if the type can be assigned to the specified type.
+        /// </summary>
+        /// <param name="type">The type to evaluate</param>
+        /// <typeparam name="T">The type to which the subject type should be checked against</typeparam>
+        /// <returns>True if the type is concrete and can be assigned to the assignableType, otherwise false.</returns>
+        public static bool IsConcreteAndAssignableTo<T>(this Type type)
+        {
+            return IsConcreteType(type) && typeof(T).IsAssignableFrom(type);
         }
 
         /// <summary>

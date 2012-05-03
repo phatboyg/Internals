@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using Reflection;
 
     static class InterfaceExtensions
@@ -99,7 +100,6 @@
                 return !interfaceType.IsGenericTypeDefinition && !interfaceType.ContainsGenericParameters;
             }
 
-
             Type baseType = type;
             while (baseType != null && baseType != typeof(object))
             {
@@ -134,32 +134,21 @@
                 if (interfaceType == null)
                     throw new ArgumentException("The interface type is not implemented by: " + type.Name);
 
-                return interfaceType.GetGenericArguments();
+                return interfaceType.GetGenericArguments().Where(x => !x.IsGenericParameter);
             }
-
 
             Type baseType = type;
             while (baseType != null && baseType != typeof(object))
             {
                 if (baseType.IsGenericType && baseType.GetGenericTypeDefinition() == openType)
-                {
-                    return baseType.GetGenericArguments();
-                }
+                    return baseType.GetGenericArguments().Where(x => !x.IsGenericParameter);
 
                 if (!baseType.IsGenericType && baseType == openType)
-                    return baseType.GetGenericArguments();
+                    return baseType.GetGenericArguments().Where(x => !x.IsGenericParameter);
 
                 baseType = baseType.BaseType;
             }
-
-//                foreach (Type declaredType in interfaceType.GetGenericArguments())
-//                {
-//                    if (declaredType.IsGenericParameter)
-//                        continue;
-//
-//                    yield return declaredType;
-//                }
-
+            
             throw new ArgumentException("Could not find open type in type: " + type.Name);
         }
 
@@ -177,22 +166,6 @@
         public static bool IsConcreteAndAssignableTo(this Type pluggedType, Type pluginType)
         {
             return pluggedType.IsConcreteType() && pluginType.IsAssignableFrom(pluggedType);
-        }
-
-        public static bool ImplementsOpenGenericInterface(this Type type, Type interfaceType)
-        {
-            if (!type.IsConcreteType())
-                return false;
-
-            Type[] interfaces = type.GetInterfaces();
-            for (int i = 0; i < interfaces.Length; i++)
-            {
-                if (interfaces[i].IsGenericType
-                    && interfaces[i].GetGenericTypeDefinition() == interfaceType)
-                    return true;
-            }
-
-            return false;
         }
     }
 }
