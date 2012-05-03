@@ -96,15 +96,15 @@
                 if (interfaceType == null)
                     return false;
 
-                return !interfaceType.IsGenericTypeDefinition;
+                return !interfaceType.IsGenericTypeDefinition && !interfaceType.ContainsGenericParameters;
             }
 
 
-            Type baseType = type.BaseType;
+            Type baseType = type;
             while (baseType != null && baseType != typeof(object))
             {
                 if (baseType.IsGenericType && baseType.GetGenericTypeDefinition() == openType)
-                    return !baseType.IsGenericTypeDefinition;
+                    return !baseType.IsGenericTypeDefinition && !baseType.ContainsGenericParameters;
 
                 if (!baseType.IsGenericType && baseType == openType)
                     return true;
