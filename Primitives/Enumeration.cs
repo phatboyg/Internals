@@ -10,7 +10,7 @@
     using Extensions;
 
     [Serializable]
-    abstract class Enumeration :
+    public abstract class Enumeration :
         IComparable
     {
         static readonly Cache<Type, EnumerationInfo> _cache;
