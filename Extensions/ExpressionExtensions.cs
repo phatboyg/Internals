@@ -29,6 +29,11 @@
             return expression.GetMemberExpression().Member.Name;
         }
 
+        public static string GetMemberName<T>(this Expression<Func<T>> expression)
+        {
+            return expression.GetMemberExpression().Member.Name;
+        }
+
         public static PropertyInfo GetPropertyInfo<T, TMember>(this Expression<Func<T, TMember>> expression)
         {
             return expression.GetMemberExpression().Member as PropertyInfo;
@@ -48,6 +53,13 @@
         }
 
         public static MemberExpression GetMemberExpression<T>(this Expression<Action<T>> expression)
+        {
+            if (expression == null)
+                throw new ArgumentNullException("expression");
+            return GetMemberExpression(expression.Body);
+        }
+
+        public static MemberExpression GetMemberExpression<T>(this Expression<Func<T>> expression)
         {
             if (expression == null)
                 throw new ArgumentNullException("expression");
