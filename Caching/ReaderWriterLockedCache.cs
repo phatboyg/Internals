@@ -10,9 +10,9 @@ namespace Internals.Caching
         Cache<TKey, TValue>,
         IDisposable
     {
-        Cache<TKey, TValue> _cache;
+        readonly Cache<TKey, TValue> _cache;
+        readonly ReaderWriterLockSlim _lock;
         bool _disposed;
-        ReaderWriterLockSlim _lock;
 
         public ReaderWriterLockedCache(Cache<TKey, TValue> cache)
         {

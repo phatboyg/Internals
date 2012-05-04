@@ -53,7 +53,7 @@ namespace Internals.Caching
             _missingValueProvider = missingValueProvider;
         }
 
-        public ConcurrentCache(IDictionary<TKey, TValue> values)
+        public ConcurrentCache(IEnumerable<KeyValuePair<TKey, TValue>> values)
         {
             _values = new ConcurrentDictionary<TKey, TValue>(values);
         }
@@ -65,7 +65,7 @@ namespace Internals.Caching
             _missingValueProvider = missingValueProvider;
         }
 
-        public ConcurrentCache(IDictionary<TKey, TValue> values, IEqualityComparer<TKey> equalityComparer)
+        public ConcurrentCache(IEnumerable<KeyValuePair<TKey, TValue>> values, IEqualityComparer<TKey> equalityComparer)
         {
             _values = new ConcurrentDictionary<TKey, TValue>(values, equalityComparer);
         }

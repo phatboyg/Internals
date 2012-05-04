@@ -9,7 +9,7 @@ namespace Internals.Caching
     {
         readonly Cache<TKey, TValue> _cache;
 
-        public AbstractCacheDecorator(Cache<TKey, TValue> cache)
+        protected AbstractCacheDecorator(Cache<TKey, TValue> cache)
         {
             _cache = cache;
         }

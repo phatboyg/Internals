@@ -5,10 +5,10 @@
 
     static class TimeSpanExtensions
     {
-        static TimeSpan _day = TimeSpan.FromDays(1);
-        static TimeSpan _hour = TimeSpan.FromHours(1);
-        static TimeSpan _month = TimeSpan.FromDays(30);
-        static TimeSpan _year = TimeSpan.FromDays(365);
+        static readonly TimeSpan _day = TimeSpan.FromDays(1);
+        static readonly TimeSpan _hour = TimeSpan.FromHours(1);
+        static readonly TimeSpan _month = TimeSpan.FromDays(30);
+        static readonly TimeSpan _year = TimeSpan.FromDays(365);
 
 
         public static string ToFriendlyString(this TimeSpan ts)
