@@ -39,6 +39,11 @@
             return expression.GetMemberExpression().Member as PropertyInfo;
         }
 
+        public static PropertyInfo GetPropertyInfo<T>(this Expression<Func<T>> expression)
+        {
+            return expression.GetMemberExpression().Member as PropertyInfo;
+        }
+
         public static MemberInfo GetMemberInfo<T>(this Expression<Action<T>> expression)
         {
             return expression.GetMemberExpression().Member;
