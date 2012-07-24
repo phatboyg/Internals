@@ -10,7 +10,12 @@ namespace Internals.Reflection
     {
         public readonly Action<object, object> SetProperty;
 
-        public ReadWriteProperty(PropertyInfo property, bool includeReadOnly = false)
+        public ReadWriteProperty(PropertyInfo property)
+            : this(property, false)
+        {
+        }
+
+        public ReadWriteProperty(PropertyInfo property, bool includeReadOnly)
             : base(property)
         {
             SetProperty = GetSetMethod(Property, includeReadOnly);
@@ -50,12 +55,22 @@ namespace Internals.Reflection
     {
         public readonly Action<T, object> SetProperty;
 
-        public ReadWriteProperty(Expression<Func<T, object>> propertyExpression, bool includeNonPublic = false)
+        public ReadWriteProperty(Expression<Func<T, object>> propertyExpression)
+            : this(propertyExpression.GetPropertyInfo(), false)
+        {
+        }
+
+        public ReadWriteProperty(Expression<Func<T, object>> propertyExpression, bool includeNonPublic)
             : this(propertyExpression.GetPropertyInfo(), includeNonPublic)
         {
         }
 
-        public ReadWriteProperty(PropertyInfo property, bool includeNonPublic = false)
+        public ReadWriteProperty(PropertyInfo property)
+            : this(property, false)
+        {
+        }
+
+        public ReadWriteProperty(PropertyInfo property, bool includeNonPublic)
             : base(property)
         {
             SetProperty = GetSetMethod(Property, includeNonPublic);
@@ -91,12 +106,22 @@ namespace Internals.Reflection
     {
         public readonly Action<T, TProperty> SetProperty;
 
-        public ReadWriteProperty(Expression<Func<T, object>> propertyExpression, bool includeNonPublic = false)
+        public ReadWriteProperty(Expression<Func<T, object>> propertyExpression)
+            : this(propertyExpression.GetPropertyInfo(), false)
+        {
+        }
+
+        public ReadWriteProperty(Expression<Func<T, object>> propertyExpression, bool includeNonPublic)
             : this(propertyExpression.GetPropertyInfo(), includeNonPublic)
         {
         }
 
-        public ReadWriteProperty(PropertyInfo property, bool includeNonPublic = false)
+        public ReadWriteProperty(PropertyInfo property)
+            : this(property, false)
+        {
+        }
+
+        public ReadWriteProperty(PropertyInfo property, bool includeNonPublic)
             : base(property)
         {
             SetProperty = GetSetMethod(Property, includeNonPublic);

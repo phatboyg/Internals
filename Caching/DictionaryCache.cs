@@ -52,7 +52,12 @@ namespace Internals.Caching
             _missingValueProvider = missingValueProvider;
         }
 
-        public DictionaryCache(IDictionary<TKey, TValue> values, bool copy = true)
+        public DictionaryCache(IDictionary<TKey, TValue> values) :
+            this(values, true)
+        {
+        }
+
+        public DictionaryCache(IDictionary<TKey, TValue> values, bool copy)
         {
             _values = copy
                           ? new Dictionary<TKey, TValue>(values)
@@ -60,8 +65,15 @@ namespace Internals.Caching
         }
 
         public DictionaryCache(IDictionary<TKey, TValue> values,
+            MissingValueProvider<TKey, TValue> missingValueProvider)
+            : this(values, true)
+        {
+            _missingValueProvider = missingValueProvider;
+        }
+
+        public DictionaryCache(IDictionary<TKey, TValue> values,
             MissingValueProvider<TKey, TValue> missingValueProvider,
-            bool copy = true)
+            bool copy)
             : this(values, copy)
         {
             _missingValueProvider = missingValueProvider;
@@ -263,7 +275,7 @@ namespace Internals.Caching
 
         public TResult WithValue<TResult>(TKey key,
             Func<TValue, TResult> callback,
-            TResult defaultValue = default(TResult))
+            TResult defaultValue)
         {
             TValue value;
             if (_values.TryGetValue(key, out value))

@@ -9,7 +9,12 @@ namespace Internals.Reflection
     class ReadWritePropertyCache<T> :
         AbstractCacheDecorator<string, ReadWriteProperty<T>>
     {
-        public ReadWritePropertyCache(bool includeNonPublic = false)
+        public ReadWritePropertyCache()
+            : this(false)
+        {
+        }
+
+        public ReadWritePropertyCache(bool includeNonPublic)
             : base(CreatePropertyCache(includeNonPublic))
         {
         }

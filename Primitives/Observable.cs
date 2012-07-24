@@ -1,5 +1,6 @@
 namespace Internals.Primitives
 {
+#if !NET35
     using System;
     using System.Threading;
     using Caching;
@@ -66,4 +67,5 @@ namespace Internals.Primitives
             }
         }
     }
+#endif
 }

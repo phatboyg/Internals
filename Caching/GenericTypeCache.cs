@@ -26,7 +26,12 @@ namespace Internals.Caching
         /// </summary>
         /// <param name="genericType">The generic type to close</param>
         public GenericTypeCache(Type genericType)
+#if NET35
+            : this(genericType, new ReaderWriterLockedCache<Type, TInterface>(
+                new DictionaryCache<Type,TInterface>(DefaultMissingValueProvider(genericType))))
+#else
             : this(genericType, new ConcurrentCache<Type, TInterface>(DefaultMissingValueProvider(genericType)))
+#endif
         {
         }
 
@@ -36,7 +41,12 @@ namespace Internals.Caching
         /// <param name="genericType">The generic type to close</param>
         /// <param name="missingValueProvider">The implementation provider, which must close the generic type with the passed type</param>
         public GenericTypeCache(Type genericType, MissingValueProvider<Type, TInterface> missingValueProvider)
+#if NET35
+            : this(genericType, new ReaderWriterLockedCache<Type, TInterface>(
+                new DictionaryCache<Type,TInterface>(missingValueProvider)))
+#else
             : this(genericType, new ConcurrentCache<Type, TInterface>(missingValueProvider))
+#endif
         {
         }
 
@@ -173,7 +183,7 @@ namespace Internals.Caching
 
         public TResult WithValue<TResult>(Type key,
             Func<TInterface, TResult> callback,
-            TResult defaultValue = default(TResult))
+            TResult defaultValue)
         {
             return _cache.WithValue(key, callback, defaultValue);
         }

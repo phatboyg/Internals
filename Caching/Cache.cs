@@ -113,6 +113,6 @@ namespace Internals.Caching
         /// <param name="callback">The function to call</param>
         /// <param name="defaultValue">The default return value if the item does not exist in the cache</param>
         /// <returns>The return value of the function, or the defaultValue specified if the item does not exist in the cache</returns>
-        TResult WithValue<TResult>(TKey key, Func<TValue, TResult> callback, TResult defaultValue = default(TResult));
+        TResult WithValue<TResult>(TKey key, Func<TValue, TResult> callback, TResult defaultValue);
     }
 }

@@ -141,7 +141,7 @@ namespace Internals.Caching
         }
 
         public virtual TResult WithValue<TResult>(TKey key, Func<TValue, TResult> callback,
-            TResult defaultValue = default(TResult))
+            TResult defaultValue)
         {
             return _cache.WithValue(key, callback, defaultValue);
         }

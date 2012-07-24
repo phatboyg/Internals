@@ -336,7 +336,7 @@ namespace Internals.Caching
 
         public TResult WithValue<TResult>(TKey key,
             Func<TValue, TResult> callback,
-            TResult defaultValue = default(TResult))
+            TResult defaultValue)
         {
             _lock.EnterReadLock();
             try

@@ -1,5 +1,6 @@
 namespace Internals.Caching
 {
+#if !NET35
     using System;
     using System.Collections;
     using System.Collections.Concurrent;
@@ -262,9 +263,7 @@ namespace Internals.Caching
             return false;
         }
 
-        public TResult WithValue<TResult>(TKey key,
-            Func<TValue, TResult> callback,
-            TResult defaultValue = default(TResult))
+        public TResult WithValue<TResult>(TKey key,Func<TValue, TResult> callback,TResult defaultValue)
         {
             TValue value;
             if (_values.TryGetValue(key, out value))
@@ -293,4 +292,6 @@ namespace Internals.Caching
             throw new InvalidOperationException("No default key accessor has been specified");
         }
     }
+
+#endif
 }

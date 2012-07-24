@@ -1,4 +1,4 @@
 namespace Internals.Caching
 {
-    delegate TValue MissingValueProvider<in TKey, out TValue>(TKey key);
+    delegate TValue MissingValueProvider<TKey, TValue>(TKey key);
 }
