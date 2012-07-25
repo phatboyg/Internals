@@ -151,7 +151,11 @@ namespace Internals.Reflection
             if (constructor == null)
                 throw new ArgumentException(
                     string.Format("No constructor on type '{0}' accepts ({1})", implementationType.Name,
+#if !NET35
                         string.Join(",", dependencies.Select(x => x.Name))));
+#else
+                        string.Join(",", dependencies.Select(x => x.Name).ToArray())));
+#endif
 
             ParameterInfo[] parameters = constructor.GetParameters();
 
