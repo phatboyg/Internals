@@ -161,11 +161,5 @@
 
             return GetClosingArguments(objectType, openType);
         }
-
-
-        public static bool IsConcreteAndAssignableTo(this Type pluggedType, Type pluginType)
-        {
-            return pluggedType.IsConcreteType() && pluginType.IsAssignableFrom(pluggedType);
-        }
     }
 }
