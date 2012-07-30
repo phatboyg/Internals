@@ -3,9 +3,12 @@
     using System;
     using System.Collections.Generic;
     using System.Reflection;
+    using Reflection;
 
     static class TypeExtensions
     {
+        static readonly TypeNameFormatter _typeNameFormatter = new TypeNameFormatter();
+
         public static IEnumerable<PropertyInfo> GetAllProperties(this Type type)
         {
             const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance;
@@ -79,6 +82,11 @@
         public static bool IsOpenGeneric(this Type type)
         {
             return type.IsGenericTypeDefinition || type.ContainsGenericParameters;
+        }
+
+        public static string GetTypeName(this Type type)
+        {
+            return _typeNameFormatter.GetTypeName(type);
         }
     }
 }

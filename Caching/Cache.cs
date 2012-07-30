@@ -114,5 +114,15 @@ namespace Internals.Caching
         /// <param name="defaultValue">The default return value if the item does not exist in the cache</param>
         /// <returns>The return value of the function, or the defaultValue specified if the item does not exist in the cache</returns>
         TResult WithValue<TResult>(TKey key, Func<TValue, TResult> callback, TResult defaultValue);
+
+        /// <summary>
+        /// Calls the function with the value matching the specified key, returning the result of that function
+        /// </summary>
+        /// <typeparam name="TResult">The result type of the function</typeparam>
+        /// <param name="key">The key references the value</param>
+        /// <param name="callback">The function to call</param>
+        /// <param name="defaultValue">The default return value if the item does not exist in the cache</param>
+        /// <returns>The return value of the function, or the defaultValue specified if the item does not exist in the cache</returns>
+        TResult WithValue<TResult>(TKey key, Func<TValue, TResult> callback, Func<TKey, TResult> defaultValue);
     }
 }

@@ -349,6 +349,19 @@ namespace Internals.Caching
             }
         }
 
+        public TResult WithValue<TResult>(TKey key, Func<TValue, TResult> callback, Func<TKey, TResult> defaultValue)
+        {
+            _lock.EnterReadLock();
+            try
+            {
+                return _cache.WithValue(key, callback, defaultValue);
+            }
+            finally
+            {
+                _lock.ExitReadLock();
+            }
+        }
+
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();

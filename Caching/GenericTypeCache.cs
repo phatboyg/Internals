@@ -188,6 +188,11 @@ namespace Internals.Caching
             return _cache.WithValue(key, callback, defaultValue);
         }
 
+        public TResult WithValue<TResult>(Type key, Func<TInterface, TResult> callback, Func<Type, TResult> defaultValue)
+        {
+            return _cache.WithValue(key, callback, defaultValue);
+        }
+
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();

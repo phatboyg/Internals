@@ -284,6 +284,15 @@ namespace Internals.Caching
             return defaultValue;
         }
 
+        public TResult WithValue<TResult>(TKey key, Func<TValue, TResult> callback, Func<TKey, TResult> defaultValue)
+        {
+            TValue value;
+            if (_values.TryGetValue(key, out value))
+                return callback(value);
+
+            return defaultValue(key);
+        }
+
         static TValue ThrowOnMissingValue(TKey key)
         {
             throw new KeyNotFoundException("The specified element was not found: " + key);

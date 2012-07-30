@@ -146,6 +146,11 @@ namespace Internals.Caching
             return _cache.WithValue(key, callback, defaultValue);
         }
 
+        public TResult WithValue<TResult>(TKey key, Func<TValue, TResult> callback, Func<TKey, TResult> defaultValue)
+        {
+            return _cache.WithValue(key, callback, defaultValue);
+        }
+
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
