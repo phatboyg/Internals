@@ -167,6 +167,24 @@ namespace Internals.Caching
             return value;
         }
 
+        public TValue GetValue(TKey key, TValue defaultValue)
+        {
+            TValue value;
+            if (_values.TryGetValue(key, out value))
+                return value;
+
+            return defaultValue;
+        }
+
+        public TValue GetValue(TKey key, Func<TValue> defaultValueProvider)
+        {
+            TValue value;
+            if (_values.TryGetValue(key, out value))
+                return value;
+
+            return defaultValueProvider();
+        }
+
         public bool Has(TKey key)
         {
             return _values.ContainsKey(key);

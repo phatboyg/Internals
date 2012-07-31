@@ -226,6 +226,32 @@ namespace Internals.Caching
             }
         }
 
+        public TValue GetValue(TKey key, TValue defaultValue)
+        {
+            _lock.EnterReadLock();
+            try
+            {
+                return _cache.GetValue(key, defaultValue);
+            }
+            finally
+            {
+                _lock.ExitReadLock();
+            }
+        }
+
+        public TValue GetValue(TKey key, Func<TValue> defaultValueProvider)
+        {
+            _lock.EnterReadLock();
+            try
+            {
+                return _cache.GetValue(key, defaultValueProvider);
+            }
+            finally
+            {
+                _lock.ExitReadLock();
+            }
+        }
+
         public TValue this[TKey key]
         {
             get { return Get(key); }

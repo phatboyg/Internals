@@ -61,6 +61,22 @@ namespace Internals.Caching
         TValue Get(TKey key, MissingValueProvider<TKey, TValue> missingValueProvider);
 
         /// <summary>
+        /// Get a value for the specified key, if not found returns the specified default value
+        /// </summary>
+        /// <param name="key">The key referencing the value in the cache</param>
+        /// <param name="defaultValue">The default value to return if the key is not found in the cache</param>
+        /// <returns>The matching value if it exists in the cache, otherwise the default value</returns>
+        TValue GetValue(TKey key, TValue defaultValue);
+
+        /// <summary>
+        /// Get a value for the specified key, if not found returns the specified default value
+        /// </summary>
+        /// <param name="key">The key referencing the value in the cache</param>
+        /// <param name="defaultValueProvider">The default value to return if the key is not found in the cache</param>
+        /// <returns>The matching value if it exists in the cache, otherwise the default value</returns>
+        TValue GetValue(TKey key, Func<TValue> defaultValueProvider);
+
+        /// <summary>
         /// Adds a value to the cache using the specified key. If the key already exists in the cache, an exception is thrown.
         /// </summary>
         /// <param name="key">The key referencing the value</param>

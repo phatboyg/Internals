@@ -105,6 +105,16 @@ namespace Internals.Caching
             return _cache.Get(key, missingValueProvider);
         }
 
+        public TValue GetValue(TKey key, TValue defaultValue)
+        {
+            return _cache.GetValue(key, defaultValue);
+        }
+
+        public TValue GetValue(TKey key, Func<TValue> defaultValueProvider)
+        {
+            return _cache.GetValue(key, defaultValueProvider);
+        }
+
         public virtual void Add(TKey key, TValue value)
         {
             _cache.Add(key, value);

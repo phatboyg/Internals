@@ -140,6 +140,16 @@ namespace Internals.Caching
             return _cache.Get(key, missingValueProvider);
         }
 
+        public TInterface GetValue(Type key, TInterface defaultValue)
+        {
+            return _cache.GetValue(key, defaultValue);
+        }
+
+        public TInterface GetValue(Type key, Func<TInterface> defaultValueProvider)
+        {
+            return _cache.GetValue(key, defaultValueProvider);
+        }
+
         public TInterface this[Type key]
         {
             get { return _cache[key]; }
