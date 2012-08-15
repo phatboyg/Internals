@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Reflection;
     using Reflection;
 
@@ -13,31 +14,20 @@
         {
             const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance;
 
-            foreach (PropertyInfo propertyInfo in type.GetProperties(bindingFlags))
-            {
-                yield return propertyInfo;
-            }
-
+            PropertyInfo[] properties = type.GetProperties(bindingFlags);
             if (type.IsInterface)
             {
-                foreach (Type interfaceType in type.GetInterfaces())
-                {
-                    foreach (PropertyInfo propertyInfo in interfaceType.GetAllProperties())
-                    {
-                        yield return propertyInfo;
-                    }
-                }
+                return properties.Concat(type.GetInterfaces().SelectMany(x => x.GetProperties(bindingFlags)));
             }
+
+            return properties;
         }
 
         public static IEnumerable<PropertyInfo> GetAllStaticProperties(this Type type)
         {
             const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy;
 
-            foreach (PropertyInfo propertyInfo in type.GetProperties(bindingFlags))
-            {
-                yield return propertyInfo;
-            }
+            return type.GetProperties(bindingFlags);
         }
 
         /// <summary>
