@@ -115,6 +115,11 @@ namespace Internals.Caching
             return _cache.GetValue(key, defaultValueProvider);
         }
 
+        public bool TryGetValue(TKey key, out TValue value)
+        {
+            return _cache.TryGetValue(key, out value);
+        }
+
         public virtual void Add(TKey key, TValue value)
         {
             _cache.Add(key, value);

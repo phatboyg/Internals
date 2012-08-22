@@ -252,6 +252,19 @@ namespace Internals.Caching
             }
         }
 
+        public bool TryGetValue(TKey key, out TValue value)
+        {
+            _lock.EnterReadLock();
+            try
+            {
+                return _cache.TryGetValue(key, out value);
+            }
+            finally
+            {
+                _lock.ExitReadLock();
+            }
+        }
+
         public TValue this[TKey key]
         {
             get { return Get(key); }

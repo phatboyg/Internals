@@ -175,6 +175,11 @@ namespace Internals.Caching
             return defaultValueProvider();
         }
 
+        public bool TryGetValue(TKey key, out TValue value)
+        {
+            return _values.TryGetValue(key, out value);
+        }
+
         public bool Has(TKey key)
         {
             return _values.ContainsKey(key);

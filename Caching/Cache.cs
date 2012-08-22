@@ -77,6 +77,14 @@ namespace Internals.Caching
         TValue GetValue(TKey key, Func<TValue> defaultValueProvider);
 
         /// <summary>
+        /// Gets a value for the specified key if it exists
+        /// </summary>
+        /// <param name="key">The key referencing the value in the cache</param>
+        /// <param name="value">The value if it exists in the cache, otherwise the default value</param>
+        /// <returns>True if the item was in the cache, otherwise false</returns>
+        bool TryGetValue(TKey key, out TValue value);
+
+        /// <summary>
         /// Adds a value to the cache using the specified key. If the key already exists in the cache, an exception is thrown.
         /// </summary>
         /// <param name="key">The key referencing the value</param>
