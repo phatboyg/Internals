@@ -22,7 +22,7 @@ How do I use it?
 I thought you would never ask. First, you need to add the submodule to your project. Since we built everything at the root of the Internals project, well, this makes it easy. Just type the following command in your project folder:
 
 ```
-  git submodule add git://github.com/phatboyg/Internals src/YourProjectFolder/Internals
+  git submodule add https://github.com/phatboyg/Internals.git src/YourProjectFolder/Internals
 ```
 
 This will add a directory to the YourProjectFolder called Internals and pull the _Internals_ repository into that folder.
