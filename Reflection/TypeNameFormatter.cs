@@ -27,7 +27,11 @@ namespace Internals.Reflection
             _namespaceSeparator = namespaceSeparator;
             _nestedTypeSeparator = nestedTypeSeparator;
 
+#if NET35
+            _cache = new ReaderWriterLockedCache<Type, string>(new DictionaryCache<Type, string>(FormatTypeName));
+#else
             _cache = new ConcurrentCache<Type, string>(FormatTypeName);
+#endif
         }
 
         public string GetTypeName(Type type)
