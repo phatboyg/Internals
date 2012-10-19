@@ -121,9 +121,13 @@ namespace Internals.Reflection
             if (!implementationType.IsConcreteType())
                 throw new ArgumentException(string.Format("The type '{0}' must be a concrete type",
                     addType.Name));
-
+#if !NETFX_CORE
             IOrderedEnumerable<ConstructorInfo> candidates = implementationType.GetConstructors()
                 .OrderByDescending(x => x.GetParameters().Length);
+#else
+            IOrderedEnumerable<ConstructorInfo> candidates = implementationType.GetTypeInfo().DeclaredConstructors
+                .OrderByDescending(x => x.GetParameters().Length);
+#endif
 
             Exception lastException = null;
             foreach (ConstructorInfo candidate in candidates)
@@ -156,13 +160,20 @@ namespace Internals.Reflection
             if (!implementationType.IsConcreteType())
                 throw new ArgumentException(string.Format("The implementation type '{0}' must be a concrete type",
                     implementationType.Name));
-
+#if !NETFX_CORE
             if (!addType.IsAssignableFrom(implementationType))
-                throw new ArgumentException(
+#else
+            if (!addType.GetTypeInfo().IsAssignableFrom(implementationType.GetTypeInfo()))
+#endif
+            throw new ArgumentException(
                     string.Format("The implementation type '{0}' must be assignable to the added type '{1}'",
                         implementationType.Name, addType.Name));
 
+#if !NETFX_CORE
             ConstructorInfo constructor = implementationType.GetConstructor(dependencies);
+#else
+            ConstructorInfo constructor = implementationType.GetTypeInfo().DeclaredConstructors.First(ci => FindMatchingCtor(ci, dependencies));
+#endif
             if (constructor == null)
                 throw new ArgumentException(
                     string.Format("No constructor on type '{0}' accepts ({1})", implementationType.Name,
@@ -190,6 +201,17 @@ namespace Internals.Reflection
                 throw ex.InnerException ?? ex;
             }
         }
+
+#if NETFX_CORE
+        static bool FindMatchingCtor(ConstructorInfo ci, Type[] dependencies)
+        {
+            var pars = ci.GetParameters();
+            return (from c in pars
+                    where dependencies.Any(d => d == c.ParameterType)
+                          && dependencies.Length == pars.Length
+                    select c).FirstOrDefault() != null;
+        }
+#endif
 
         /// <summary>
         /// Resolve the specified type
