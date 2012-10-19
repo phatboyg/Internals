@@ -48,14 +48,21 @@
             return type.GetProperties(bindingFlags);
         }
 #else 
-        public static IEnumerable<PropertyInfo> GetAllStaticProperties(this Type type)
+        static IEnumerable<PropertyInfo> GetAllStaticProperties(Type type,
+            bool flattenHierachy = true)
         {
-            // lol
             var info = type.GetTypeInfo();
-            return info
-                .DeclaredMethods
-                .Where(x => x.IsSpecialName && x.Name.StartsWith("get_") && x.IsStatic)
-                .Select(x => info.GetDeclaredProperty(x.Name.Substring("get_".Length))); 
+
+            if (info.BaseType != null && flattenHierachy)
+                foreach (var prop in GetAllStaticProperties(info.BaseType))
+                    yield return prop;
+
+            var props = info.DeclaredMethods
+                            .Where(x => x.IsSpecialName && x.Name.StartsWith("get_") && x.IsStatic)
+                            .Select(x => info.GetDeclaredProperty(x.Name.Substring("get_".Length)));
+
+            foreach (var propertyInfo in props)
+                yield return propertyInfo;
         }
 #endif
         /// <summary>
