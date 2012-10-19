@@ -1,7 +1,10 @@
 namespace Internals.Reflection
 {
     using System;
+    using System.Linq;
     using Caching;
+    using System.Reflection;
+
 
     class InterfaceReflectionCache
     {
@@ -28,10 +31,18 @@ namespace Internals.Reflection
 
         Type GetInterfaceInternal(Type type, Type interfaceType)
         {
+#if !NETFX_CORE
             if (interfaceType.IsGenericTypeDefinition)
+#else
+            if (interfaceType.IsConstructedGenericType)
+#endif
                 return GetGenericInterface(type, interfaceType);
 
+#if !NETFX_CORE
             Type[] interfaces = type.GetInterfaces();
+#else
+            var interfaces = type.GetTypeInfo().ImplementedInterfaces.ToArray();
+#endif
             for (int i = 0; i < interfaces.Length; i++)
             {
                 if (interfaces[i] == interfaceType)

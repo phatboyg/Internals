@@ -23,7 +23,11 @@ namespace Internals.Reflection
         {
             return new DictionaryCache<string, ReadWriteProperty<T>>(typeof(T).GetAllProperties()
                 .Where(x => x.CanRead && (includeNonPublic || x.CanWrite))
+#if !NETFX_CORE
                 .Where(x => x.GetSetMethod(includeNonPublic) != null)
+#else
+                .Where(x => x.SetMethod != null)
+#endif
                 .Select(x => new ReadWriteProperty<T>(x, includeNonPublic))
                 .ToDictionary(x => x.Property.Name));
         }

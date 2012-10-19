@@ -13,9 +13,24 @@ namespace Internals.Reflection
     /// </summary>
     static class ComponentFactory
     {
-        static readonly MethodInfo _add = new Action<Func<object>>(Add).Method.GetGenericMethodDefinition();
-        static readonly MethodInfo _get = new Func<object>(Get<object>).Method.GetGenericMethodDefinition();
-        static readonly MethodInfo _remove = new Action(Remove<object>).Method.GetGenericMethodDefinition();
+        static readonly MethodInfo _add = new Action<Func<object>>(Add)
+#if !NETFX_CORE
+            .Method.GetGenericMethodDefinition();
+#else
+            .GetMethodInfo().GetGenericMethodDefinition();
+#endif
+        static readonly MethodInfo _get = new Func<object>(Get<object>)
+#if !NETFX_CORE
+            .Method.GetGenericMethodDefinition();
+#else
+            .GetMethodInfo().GetGenericMethodDefinition();
+#endif
+        static readonly MethodInfo _remove = new Action(Remove<object>)
+#if !NETFX_CORE
+            .Method.GetGenericMethodDefinition();
+#else
+            .GetMethodInfo().GetGenericMethodDefinition();
+#endif
 
         /// <summary>
         /// Add a type with a factory method for creating the type

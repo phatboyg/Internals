@@ -10,11 +10,13 @@
     {
         static readonly TypeNameFormatter _typeNameFormatter = new TypeNameFormatter();
 
+#if !NETFX_CORE
         public static IEnumerable<PropertyInfo> GetAllProperties(this Type type)
         {
             const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance;
 
             PropertyInfo[] properties = type.GetProperties(bindingFlags);
+            IEnumerable<PropertyInfo> properties = type.GetTypeInfo().DeclaredProperties;
             if (type.IsInterface)
             {
                 return properties.Concat(type.GetInterfaces().SelectMany(x => x.GetProperties(bindingFlags)));
@@ -22,14 +24,36 @@
 
             return properties;
         }
+#else
+        public static IEnumerable<PropertyInfo> GetAllProperties(this Type type)
+        {
+            //BindingFlags.Public | BindingFlags.Instance;
 
+            var typeInfo = type.GetTypeInfo();
+
+            var properties = typeInfo.DeclaredProperties;
+            if (typeInfo.IsInterface)
+            {
+                return properties.Concat(typeInfo.ImplementedInterfaces.SelectMany(x => x.GetTypeInfo().DeclaredProperties));
+            }
+
+            return properties;
+        }
+#endif
+
+#if !NETFX_CORE
         public static IEnumerable<PropertyInfo> GetAllStaticProperties(this Type type)
         {
             const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy;
 
             return type.GetProperties(bindingFlags);
         }
-
+#else
+        public static IEnumerable<PropertyInfo> GetAllStaticProperties(this Type type)
+        {
+            return type.GetMethods();
+        }
+#endif
         /// <summary>
         /// Determines if a type is neither abstract nor an interface and can be constructed.
         /// </summary>

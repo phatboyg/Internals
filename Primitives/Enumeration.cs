@@ -9,7 +9,9 @@
     using Caching;
     using Extensions;
 
+#if !NETFX_CORE
     [Serializable]
+#endif
     public abstract class Enumeration :
         IComparable
     {

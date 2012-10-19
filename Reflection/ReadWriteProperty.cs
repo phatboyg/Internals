@@ -33,18 +33,30 @@ namespace Internals.Reflection
 
             // value as T is slightly faster than (T)value, so if it's not a value type, use that
             UnaryExpression instanceCast;
+#if !NETFX_CORE
             if (property.DeclaringType.IsValueType)
+#else
+            if (property.DeclaringType.GetTypeInfo().IsValueType)
+#endif
                 instanceCast = Expression.Convert(instance, property.DeclaringType);
             else
                 instanceCast = Expression.TypeAs(instance, property.DeclaringType);
 
             UnaryExpression valueCast;
+#if !NETFX_CORE
             if (property.PropertyType.IsValueType)
+#else
+            if (property.PropertyType.GetTypeInfo().IsValueType)
+#endif
                 valueCast = Expression.Convert(value, property.PropertyType);
             else
                 valueCast = Expression.TypeAs(value, property.PropertyType);
 
+#if !NETFX_CORE
             MethodCallExpression call = Expression.Call(instanceCast, property.GetSetMethod(includeNonPublic), valueCast);
+#else
+            MethodCallExpression call = Expression.Call(instanceCast, property.SetMethod, valueCast);
+#endif
 
             return Expression.Lambda<Action<object, object>>(call, new[] {instance, value}).Compile();
         }
@@ -90,12 +102,19 @@ namespace Internals.Reflection
             ParameterExpression instance = Expression.Parameter(typeof(T), "instance");
             ParameterExpression value = Expression.Parameter(typeof(object), "value");
             UnaryExpression valueCast;
+#if !NETFX_CORE
             if (property.PropertyType.IsValueType)
+#else
+            if (property.PropertyType.GetTypeInfo().IsValueType)
+#endif
                 valueCast = Expression.Convert(value, property.PropertyType);
             else
                 valueCast = Expression.TypeAs(value, property.PropertyType);
-
+#if !NETFX_CORE
             MethodCallExpression call = Expression.Call(instance, property.GetSetMethod(includeNonPublic), valueCast);
+#else
+            MethodCallExpression call = Expression.Call(instance, property.SetMethod, valueCast);
+#endif
 
             return Expression.Lambda<Action<T, object>>(call, new[] {instance, value}).Compile();
         }
@@ -136,8 +155,11 @@ namespace Internals.Reflection
         {
             ParameterExpression instance = Expression.Parameter(typeof(T), "instance");
             ParameterExpression value = Expression.Parameter(typeof(TProperty), "value");
+#if !NETFX_CORE
             MethodCallExpression call = Expression.Call(instance, property.GetSetMethod(includeNonPublic), value);
-
+#else
+            MethodCallExpression call = Expression.Call(instance, property.SetMethod, value);
+#endif
             return Expression.Lambda<Action<T, TProperty>>(call, new[] {instance, value}).Compile();
         }
     }

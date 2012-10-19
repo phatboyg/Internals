@@ -26,12 +26,20 @@ namespace Internals.Reflection
         {
             ParameterExpression instance = Expression.Parameter(typeof(object), "instance");
             UnaryExpression instanceCast;
+#if !NETFX_CORE
             if (property.DeclaringType.IsValueType)
+#else
+            if (property.DeclaringType.GetTypeInfo().IsValueType)
+#endif
                 instanceCast = Expression.Convert(instance, property.DeclaringType);
             else
                 instanceCast = Expression.TypeAs(instance, property.DeclaringType);
 
+#if !NETFX_CORE
             MethodCallExpression call = Expression.Call(instanceCast, property.GetGetMethod());
+#else
+            MethodCallExpression call = Expression.Call(instanceCast, property.GetMethod);
+#endif
             UnaryExpression typeAs = Expression.TypeAs(call, typeof(object));
 
             return Expression.Lambda<Func<object, object>>(typeAs, instance).Compile();
@@ -63,7 +71,11 @@ namespace Internals.Reflection
         static Func<T, object> GetGetMethod(PropertyInfo property)
         {
             ParameterExpression instance = Expression.Parameter(typeof(T), "instance");
+#if !NETFX_CORE
             MethodCallExpression call = Expression.Call(instance, property.GetGetMethod());
+#else
+            MethodCallExpression call = Expression.Call(instance, property.GetMethod);
+#endif
             UnaryExpression typeAs = Expression.TypeAs(call, typeof(object));
             return Expression.Lambda<Func<T, object>>(typeAs, instance).Compile();
         }
@@ -94,7 +106,11 @@ namespace Internals.Reflection
         static Func<T, TProperty> GetGetMethod(PropertyInfo property)
         {
             ParameterExpression instance = Expression.Parameter(typeof(T), "instance");
+#if !NETFX_CORE
             MethodCallExpression call = Expression.Call(instance, property.GetGetMethod());
+#else
+            MethodCallExpression call = Expression.Call(instance, property.GetMethod);
+#endif
 
             return Expression.Lambda<Func<T, TProperty>>(call, instance).Compile();
         }
