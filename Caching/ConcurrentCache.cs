@@ -7,7 +7,9 @@ namespace Internals.Caching
     using System.Collections.Generic;
     using System.Linq;
 
+#if !NETFX_CORE
     [Serializable]
+#endif
     class ConcurrentCache<TKey, TValue> :
         Cache<TKey, TValue>
     {

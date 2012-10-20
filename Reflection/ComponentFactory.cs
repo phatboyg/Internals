@@ -13,9 +13,24 @@ namespace Internals.Reflection
     /// </summary>
     static class ComponentFactory
     {
-        static readonly MethodInfo _add = new Action<Func<object>>(Add).Method.GetGenericMethodDefinition();
-        static readonly MethodInfo _get = new Func<object>(Get<object>).Method.GetGenericMethodDefinition();
-        static readonly MethodInfo _remove = new Action(Remove<object>).Method.GetGenericMethodDefinition();
+        static readonly MethodInfo _add = new Action<Func<object>>(Add)
+#if !NETFX_CORE
+            .Method.GetGenericMethodDefinition();
+#else
+            .GetMethodInfo().GetGenericMethodDefinition();
+#endif
+        static readonly MethodInfo _get = new Func<object>(Get<object>)
+#if !NETFX_CORE
+            .Method.GetGenericMethodDefinition();
+#else
+            .GetMethodInfo().GetGenericMethodDefinition();
+#endif
+        static readonly MethodInfo _remove = new Action(Remove<object>)
+#if !NETFX_CORE
+            .Method.GetGenericMethodDefinition();
+#else
+            .GetMethodInfo().GetGenericMethodDefinition();
+#endif
 
         /// <summary>
         /// Add a type with a factory method for creating the type
@@ -106,9 +121,13 @@ namespace Internals.Reflection
             if (!implementationType.IsConcreteType())
                 throw new ArgumentException(string.Format("The type '{0}' must be a concrete type",
                     addType.Name));
-
+#if !NETFX_CORE
             IOrderedEnumerable<ConstructorInfo> candidates = implementationType.GetConstructors()
                 .OrderByDescending(x => x.GetParameters().Length);
+#else
+            IOrderedEnumerable<ConstructorInfo> candidates = implementationType.GetTypeInfo().DeclaredConstructors
+                .OrderByDescending(x => x.GetParameters().Length);
+#endif
 
             Exception lastException = null;
             foreach (ConstructorInfo candidate in candidates)
@@ -141,13 +160,22 @@ namespace Internals.Reflection
             if (!implementationType.IsConcreteType())
                 throw new ArgumentException(string.Format("The implementation type '{0}' must be a concrete type",
                     implementationType.Name));
-
+#if !NETFX_CORE
             if (!addType.IsAssignableFrom(implementationType))
-                throw new ArgumentException(
+#else
+            var implementationTypeInfo = implementationType.GetTypeInfo();
+            var addTypeInfo = addType.GetTypeInfo();
+            if (!addTypeInfo.IsAssignableFrom(implementationTypeInfo))
+#endif
+            throw new ArgumentException(
                     string.Format("The implementation type '{0}' must be assignable to the added type '{1}'",
                         implementationType.Name, addType.Name));
 
+#if !NETFX_CORE
             ConstructorInfo constructor = implementationType.GetConstructor(dependencies);
+#else
+            ConstructorInfo constructor = implementationTypeInfo.GetConstructor(dependencies, false);
+#endif
             if (constructor == null)
                 throw new ArgumentException(
                     string.Format("No constructor on type '{0}' accepts ({1})", implementationType.Name,
@@ -175,6 +203,26 @@ namespace Internals.Reflection
                 throw ex.InnerException ?? ex;
             }
         }
+
+#if NETFX_CORE
+        static bool IsMatch(ParameterInfo[] parameters, Type[] parameterTypes)
+        {
+            if (parameterTypes == null) parameterTypes = new Type[0];
+            if (parameters.Length != parameterTypes.Length) return false;
+            return !parameters.Where((t, i) => t.ParameterType != parameterTypes[i]).Any();
+        }
+        static ConstructorInfo GetConstructor(this TypeInfo type, Type[] parameterTypes, bool nonPublic)
+        {
+            return type.DeclaredConstructors
+                .Where(ctor => nonPublic || ctor.IsPublic)
+                .FirstOrDefault(ctor => IsMatch(ctor.GetParameters(), parameterTypes));
+        }
+        static IEnumerable<ConstructorInfo> GetConstructors(this TypeInfo typeInfo, bool nonPublic)
+        {
+            if (nonPublic) return typeInfo.DeclaredConstructors.ToArray();
+            return typeInfo.DeclaredConstructors.Where(x => x.IsPublic);
+        }
+#endif
 
         /// <summary>
         /// Resolve the specified type

@@ -1,7 +1,10 @@
 namespace Internals.Reflection
 {
     using System;
+    using System.Linq;
     using Caching;
+    using System.Reflection;
+
 
     class InterfaceReflectionCache
     {
@@ -28,10 +31,18 @@ namespace Internals.Reflection
 
         Type GetInterfaceInternal(Type type, Type interfaceType)
         {
+#if !NETFX_CORE
             if (interfaceType.IsGenericTypeDefinition)
+#else
+            if (interfaceType.GetTypeInfo().IsGenericTypeDefinition)
+#endif
                 return GetGenericInterface(type, interfaceType);
 
+#if !NETFX_CORE
             Type[] interfaces = type.GetInterfaces();
+#else
+            var interfaces = type.GetTypeInfo().ImplementedInterfaces.ToArray();
+#endif
             for (int i = 0; i < interfaces.Length; i++)
             {
                 if (interfaces[i] == interfaceType)
@@ -45,7 +56,11 @@ namespace Internals.Reflection
 
         public Type GetGenericInterface(Type type, Type interfaceType)
         {
+#if !NETFX_CORE
             if (!interfaceType.IsGenericTypeDefinition)
+#else
+            if (!interfaceType.GetTypeInfo().IsGenericTypeDefinition)
+#endif
                 throw new ArgumentException(
                     "The interface must be a generic interface definition: " + interfaceType.Name,
                     "interfaceType");
@@ -53,19 +68,29 @@ namespace Internals.Reflection
             // our contract states that we will not return generic interface definitions without generic type arguments
             if (type == interfaceType)
                 return null;
-
+#if !NETFX_CORE
             if (type.IsGenericType)
+#else
+            if (type.GetTypeInfo().IsGenericType)
+#endif
             {
                 if (type.GetGenericTypeDefinition() == interfaceType)
                 {
                     return type;
                 }
             }
-
+#if !NETFX_CORE
             Type[] interfaces = type.GetInterfaces();
+#else
+            Type[] interfaces = type.GetTypeInfo().ImplementedInterfaces.ToArray();
+#endif
             for (int i = 0; i < interfaces.Length; i++)
             {
+#if !NETFX_CORE
                 if (interfaces[i].IsGenericType)
+#else
+                if(interfaces[i].GetTypeInfo().IsGenericType)
+#endif
                 {
                     if (interfaces[i].GetGenericTypeDefinition() == interfaceType)
                     {

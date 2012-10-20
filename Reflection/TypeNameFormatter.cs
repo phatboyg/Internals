@@ -3,6 +3,8 @@ namespace Internals.Reflection
     using System;
     using System.Text;
     using Caching;
+    using System.Reflection;
+
 
     class TypeNameFormatter
     {
@@ -41,8 +43,12 @@ namespace Internals.Reflection
 
         string FormatTypeName(Type type)
         {
+#if !NETFX_CORE
             if (type.IsGenericTypeDefinition)
-                throw new ArgumentException("An open generic type cannot be used as a message name");
+#else
+            if (type.GetTypeInfo().IsGenericTypeDefinition)            
+#endif
+            throw new ArgumentException("An open generic type cannot be used as a message name");
 
             var sb = new StringBuilder("");
 
@@ -69,8 +75,11 @@ namespace Internals.Reflection
                 FormatTypeName(sb, type.DeclaringType, type.Namespace);
                 sb.Append(_nestedTypeSeparator);
             }
-
+#if !NETFX_CORE
             if (type.IsGenericType)
+#else
+            if (type.GetTypeInfo().IsGenericType)
+#endif
             {
                 string name = type.GetGenericTypeDefinition().Name;
 
@@ -81,8 +90,11 @@ namespace Internals.Reflection
 
                 sb.Append(name);
                 sb.Append(_genericOpen);
-
+#if !NETFX_CORE
                 Type[] arguments = type.GetGenericArguments();
+#else
+                Type[] arguments = type.GetTypeInfo().GenericTypeArguments;
+#endif
                 for (int i = 0; i < arguments.Length; i++)
                 {
                     if (i > 0)

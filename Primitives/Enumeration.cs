@@ -9,7 +9,9 @@
     using Caching;
     using Extensions;
 
+#if !NETFX_CORE
     [Serializable]
+#endif
     public abstract class Enumeration :
         IComparable
     {
@@ -105,9 +107,12 @@
             {
                 _names = new DictionaryCache<string, Enumeration>();
                 _indices = new DictionaryCache<int, Enumeration>();
-
+#if !NETFX_CORE
                 const BindingFlags flags = BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly;
                 IEnumerable<FieldInfo> fields = type.GetFields(flags);
+#else
+                IEnumerable<FieldInfo> fields = type.GetTypeInfo().DeclaredFields; // TODO: statics??!
+#endif
 
                 foreach (FieldInfo field in fields)
                 {

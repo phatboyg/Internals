@@ -5,7 +5,9 @@ namespace Internals.Caching
     using System.Collections.Generic;
     using System.Linq;
 
+#if !NETFX_CORE
     [Serializable]
+#endif
     class DictionaryCache<TKey, TValue> :
         Cache<TKey, TValue>
     {

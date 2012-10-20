@@ -3,6 +3,9 @@ namespace Internals.Caching
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Reflection;
+    using System.Linq;
+
 
     class GenericTypeCache<TInterface> :
         Cache<Type, TInterface>
@@ -12,11 +15,17 @@ namespace Internals.Caching
 
         GenericTypeCache(Type genericType, Cache<Type, TInterface> cache)
         {
+#if !NETFX_CORE
             if (!genericType.IsGenericType)
                 throw new ArgumentException("The type specified must be a generic type", "genericType");
             if (genericType.GetGenericArguments().Length != 1)
                 throw new ArgumentException("The generic type must have a single generic argument");
-
+#else
+            if (genericType.GetTypeInfo().GenericTypeArguments == null)
+                throw new ArgumentException("The type specified must be a generic type", "genericType");
+            if (genericType.GetTypeInfo().GenericTypeParameters.Length != 1)
+                throw new ArgumentException("The generic type must have a single generic argument");
+#endif
             _genericType = genericType;
             _cache = cache;
         }
