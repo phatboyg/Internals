@@ -34,7 +34,7 @@ namespace Internals.Reflection
 #if !NETFX_CORE
             if (interfaceType.IsGenericTypeDefinition)
 #else
-            if (interfaceType.IsConstructedGenericType)
+            if (interfaceType.GetTypeInfo().IsGenericTypeDefinition)
 #endif
                 return GetGenericInterface(type, interfaceType);
 
@@ -59,9 +59,9 @@ namespace Internals.Reflection
 #if !NETFX_CORE
             if (!interfaceType.IsGenericTypeDefinition)
 #else
-            if (interfaceType.GetTypeInfo().IsGenericTypeDefinition)
+            if (!interfaceType.GetTypeInfo().IsGenericTypeDefinition)
 #endif
-            throw new ArgumentException(
+                throw new ArgumentException(
                     "The interface must be a generic interface definition: " + interfaceType.Name,
                     "interfaceType");
 

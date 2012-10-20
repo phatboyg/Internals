@@ -49,7 +49,7 @@
 #else
             if (interfaceTypeInfo.IsGenericTypeDefinition)
 #endif
-            return _cache.GetGenericInterface(type, interfaceType) != null;
+                return _cache.GetGenericInterface(type, interfaceType) != null;
 
 #if !NETFX_CORE
             return interfaceType.IsAssignableFrom(type);
@@ -142,6 +142,11 @@
                 var baseTypeInfo = baseType.GetTypeInfo();
                 if (baseTypeInfo.IsGenericType && baseTypeInfo.GetGenericTypeDefinition() == openType)
                     return !baseTypeInfo.IsGenericTypeDefinition && !baseTypeInfo.ContainsGenericParameters;
+
+                if (!baseTypeInfo.IsGenericType && baseType == openType)
+                    return true;
+
+                baseType = baseTypeInfo.BaseType;
 #endif
             }
 

@@ -21,9 +21,9 @@ namespace Internals.Caching
             if (genericType.GetGenericArguments().Length != 1)
                 throw new ArgumentException("The generic type must have a single generic argument");
 #else
-            if (genericType.GenericTypeArguments == null)
+            if (genericType.GetTypeInfo().GenericTypeArguments == null)
                 throw new ArgumentException("The type specified must be a generic type", "genericType");
-            if (genericType.GenericTypeArguments.Length != 1)
+            if (genericType.GetTypeInfo().GenericTypeParameters.Length != 1)
                 throw new ArgumentException("The generic type must have a single generic argument");
 #endif
             _genericType = genericType;

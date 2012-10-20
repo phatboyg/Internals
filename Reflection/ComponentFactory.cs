@@ -163,7 +163,9 @@ namespace Internals.Reflection
 #if !NETFX_CORE
             if (!addType.IsAssignableFrom(implementationType))
 #else
-            if (!addType.GetTypeInfo().IsAssignableFrom(implementationType.GetTypeInfo()))
+            var implementationTypeInfo = implementationType.GetTypeInfo();
+            var addTypeInfo = addType.GetTypeInfo();
+            if (!addTypeInfo.IsAssignableFrom(implementationTypeInfo))
 #endif
             throw new ArgumentException(
                     string.Format("The implementation type '{0}' must be assignable to the added type '{1}'",
@@ -172,7 +174,7 @@ namespace Internals.Reflection
 #if !NETFX_CORE
             ConstructorInfo constructor = implementationType.GetConstructor(dependencies);
 #else
-            ConstructorInfo constructor = implementationType.GetTypeInfo().DeclaredConstructors.First(ci => FindMatchingCtor(ci, dependencies));
+            ConstructorInfo constructor = implementationTypeInfo.GetConstructor(dependencies, false);
 #endif
             if (constructor == null)
                 throw new ArgumentException(
@@ -203,13 +205,22 @@ namespace Internals.Reflection
         }
 
 #if NETFX_CORE
-        static bool FindMatchingCtor(ConstructorInfo ci, Type[] dependencies)
+        static bool IsMatch(ParameterInfo[] parameters, Type[] parameterTypes)
         {
-            var pars = ci.GetParameters();
-            return (from c in pars
-                    where dependencies.Any(d => d == c.ParameterType)
-                          && dependencies.Length == pars.Length
-                    select c).FirstOrDefault() != null;
+            if (parameterTypes == null) parameterTypes = new Type[0];
+            if (parameters.Length != parameterTypes.Length) return false;
+            return !parameters.Where((t, i) => t.ParameterType != parameterTypes[i]).Any();
+        }
+        static ConstructorInfo GetConstructor(this TypeInfo type, Type[] parameterTypes, bool nonPublic)
+        {
+            return type.DeclaredConstructors
+                .Where(ctor => nonPublic || ctor.IsPublic)
+                .FirstOrDefault(ctor => IsMatch(ctor.GetParameters(), parameterTypes));
+        }
+        static IEnumerable<ConstructorInfo> GetConstructors(this TypeInfo typeInfo, bool nonPublic)
+        {
+            if (nonPublic) return typeInfo.DeclaredConstructors.ToArray();
+            return typeInfo.DeclaredConstructors.Where(x => x.IsPublic);
         }
 #endif
 

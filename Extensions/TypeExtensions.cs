@@ -30,13 +30,25 @@
 
             var typeInfo = type.GetTypeInfo();
 
-            var properties = typeInfo.DeclaredProperties;
+            if (typeInfo.BaseType != null)
+                foreach (var prop in GetAllProperties(typeInfo.BaseType))
+                    yield return prop;
+
+            var properties = typeInfo.DeclaredMethods
+                .Where(x => x.IsSpecialName && x.Name.StartsWith("get_") && !x.IsStatic)
+                .Select(x => typeInfo.GetDeclaredProperty(x.Name.Substring("get_".Length)))
+                .ToList();
+
             if (typeInfo.IsInterface)
             {
-                return properties.Concat(typeInfo.ImplementedInterfaces.SelectMany(x => x.GetTypeInfo().DeclaredProperties));
+                foreach (var prop in properties.Concat(typeInfo.ImplementedInterfaces.SelectMany(x => x.GetTypeInfo().DeclaredProperties)))
+                    yield return prop;
+                
+                yield break;
             }
 
-            return properties;
+            foreach (var info in properties)
+                yield return info;
         }
 #endif
 
@@ -48,7 +60,7 @@
             return type.GetProperties(bindingFlags);
         }
 #else 
-        static IEnumerable<PropertyInfo> GetAllStaticProperties(Type type,
+        public static IEnumerable<PropertyInfo> GetAllStaticProperties(this Type type,
             bool flattenHierachy = true)
         {
             var info = type.GetTypeInfo();
