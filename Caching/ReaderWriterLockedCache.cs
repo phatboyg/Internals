@@ -5,6 +5,8 @@ namespace Internals.Caching
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
+    using System.Threading.Tasks;
+
 
     class ReaderWriterLockedCache<TKey, TValue> :
         Cache<TKey, TValue>,
@@ -366,6 +368,19 @@ namespace Internals.Caching
             try
             {
                 return _cache.WithValue(key, callback);
+            }
+            finally
+            {
+                _lock.ExitReadLock();
+            }
+        }
+
+        public async Task<bool> WithValue(TKey key, Func<TValue, Task> callback)
+        {
+            _lock.EnterReadLock();
+            try
+            {
+                return await _cache.WithValue(key, callback);
             }
             finally
             {

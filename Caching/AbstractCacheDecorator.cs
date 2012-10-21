@@ -3,6 +3,8 @@ namespace Internals.Caching
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
+
 
     abstract class AbstractCacheDecorator<TKey, TValue> :
         Cache<TKey, TValue>
@@ -151,6 +153,11 @@ namespace Internals.Caching
         }
 
         public virtual bool WithValue(TKey key, Action<TValue> callback)
+        {
+            return _cache.WithValue(key, callback);
+        }
+
+        public Task<bool> WithValue(TKey key, Func<TValue, Task> callback)
         {
             return _cache.WithValue(key, callback);
         }

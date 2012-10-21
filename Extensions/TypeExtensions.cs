@@ -84,12 +84,8 @@
         /// <returns>True if the type can be constructed, otherwise false.</returns>
         public static bool IsConcreteType(this Type type)
         {
-#if !NETFX_CORE
-            return !type.IsAbstract && !type.IsInterface;
-#else
             var typeInfo = type.GetTypeInfo();
             return !typeInfo.IsAbstract && !typeInfo.IsInterface;
-#endif
         }
 
         /// <summary>
@@ -101,11 +97,7 @@
         /// <returns>True if the type is concrete and can be assigned to the assignableType, otherwise false.</returns>
         public static bool IsConcreteAndAssignableTo(this Type type, Type assignableType)
         {
-#if !NETFX_CORE
-            return IsConcreteType(type) && assignableType.IsAssignableFrom(type);
-#else
             return IsConcreteType(type) && assignableType.GetTypeInfo().IsAssignableFrom(type.GetTypeInfo());
-#endif
         }
 
         /// <summary>
@@ -117,11 +109,7 @@
         /// <returns>True if the type is concrete and can be assigned to the assignableType, otherwise false.</returns>
         public static bool IsConcreteAndAssignableTo<T>(this Type type)
         {
-#if !NETFX_CORE
-            return IsConcreteType(type) && typeof(T).IsAssignableFrom(type);
-#else
             return IsConcreteType(type) && typeof(T).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo());
-#endif
         }
 
         /// <summary>
@@ -131,12 +119,8 @@
         /// <returns>True if the type is an open generic</returns>
         public static bool IsOpenGeneric(this Type type)
         {
-#if !NETFX_CORE
-            return type.IsGenericTypeDefinition || type.ContainsGenericParameters;
-#else
             var typeInfo = type.GetTypeInfo();
             return typeInfo.IsGenericTypeDefinition || typeInfo.ContainsGenericParameters;
-#endif
         }
 
         public static string GetTypeName(this Type type)
@@ -145,3 +129,25 @@
         }
     }
 }
+
+#if !NETFX_CORE
+namespace System.Reflection
+{
+    public static class TypeExtensions
+    {
+        public static Type GetTypeInfo(this Type type)
+        {
+            return type;
+        }
+    }
+
+    public static class PropertyInfoExtensions
+    {
+        public static void SetValue(this PropertyInfo propertyInfo, object instance, object value)
+        {
+            propertyInfo.SetValue(instance, value, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
+                null, null, null);
+        }
+    }
+}
+#endif
