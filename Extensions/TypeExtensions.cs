@@ -130,9 +130,9 @@
     }
 }
 
-#if !NETFX_CORE
 namespace System.Reflection
 {
+#if !NETFX_CORE
     public static class TypeExtensions
     {
         public static Type GetTypeInfo(this Type type)
@@ -149,5 +149,5 @@ namespace System.Reflection
                 null, null, null);
         }
     }
-}
 #endif
+}
