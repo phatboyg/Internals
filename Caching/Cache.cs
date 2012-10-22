@@ -2,6 +2,8 @@ namespace Internals.Caching
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
+
 
     /// <summary>
     /// A cache implementation that extends the capability of most dictionary style classes to
@@ -128,6 +130,14 @@ namespace Internals.Caching
         /// <param name="callback">The callback to call</param>
         /// <returns>True if the value exists and the callback was called</returns>
         bool WithValue(TKey key, Action<TValue> callback);
+
+        /// <summary>
+        /// Calls the callback with the value matching the specified key
+        /// </summary>
+        /// <param name="key">The key referencing the value</param>
+        /// <param name="callback">The callback to call</param>
+        /// <returns>True if the value exists and the callback was called</returns>
+        Task<bool> WithValue(TKey key, Func<TValue, Task> callback);
 
         /// <summary>
         /// Calls the function with the value matching the specified key, returning the result of that function

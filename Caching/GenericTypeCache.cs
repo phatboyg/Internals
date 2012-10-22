@@ -5,6 +5,7 @@ namespace Internals.Caching
     using System.Collections.Generic;
     using System.Reflection;
     using System.Linq;
+    using System.Threading.Tasks;
 
 
     class GenericTypeCache<TInterface> :
@@ -203,6 +204,11 @@ namespace Internals.Caching
         public bool WithValue(Type key, Action<TInterface> callback)
         {
             return _cache.WithValue(key, callback);
+        }
+
+        public async Task<bool> WithValue(Type key, Func<TInterface, Task> callback)
+        {
+            return await _cache.WithValue(key, callback);
         }
 
         public TResult WithValue<TResult>(Type key,

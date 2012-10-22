@@ -4,6 +4,7 @@ namespace Internals.Caching
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
 
 #if !NETFX_CORE
     [Serializable]
@@ -292,6 +293,18 @@ namespace Internals.Caching
             if (_values.TryGetValue(key, out value))
             {
                 callback(value);
+                return true;
+            }
+
+            return false;
+        }
+
+        public async Task<bool> WithValue(TKey key, Func<TValue, Task> callback)
+        {
+            TValue value;
+            if (_values.TryGetValue(key, out value))
+            {
+                await callback(value);
                 return true;
             }
 
