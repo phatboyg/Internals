@@ -55,19 +55,37 @@
 #if !NETFX_CORE
         public static IEnumerable<PropertyInfo> GetAllStaticProperties(this Type type)
         {
-            const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy;
+            const BindingFlags bindingFlags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy;
+
+            return type.GetProperties(bindingFlags);
+        }
+
+        public static IEnumerable<PropertyInfo> GetStaticProperties(this Type type)
+        {
+            const BindingFlags bindingFlags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static;
 
             return type.GetProperties(bindingFlags);
         }
 #else 
-        public static IEnumerable<PropertyInfo> GetAllStaticProperties(this Type type,
-            bool flattenHierachy = true)
+        public static IEnumerable<PropertyInfo> GetAllStaticProperties(this Type type)
         {
             var info = type.GetTypeInfo();
 
-            if (info.BaseType != null && flattenHierachy)
+            if (info.BaseType != null)
                 foreach (var prop in GetAllStaticProperties(info.BaseType))
                     yield return prop;
+
+            var props = info.DeclaredMethods
+                            .Where(x => x.IsSpecialName && x.Name.StartsWith("get_") && x.IsStatic)
+                            .Select(x => info.GetDeclaredProperty(x.Name.Substring("get_".Length)));
+
+            foreach (var propertyInfo in props)
+                yield return propertyInfo;
+        }
+
+        public static IEnumerable<PropertyInfo> GetStaticProperties(this Type type)
+        {
+            var info = type.GetTypeInfo();
 
             var props = info.DeclaredMethods
                             .Where(x => x.IsSpecialName && x.Name.StartsWith("get_") && x.IsStatic)
