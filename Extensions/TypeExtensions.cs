@@ -192,6 +192,11 @@ namespace System.Reflection
         {
             return typeInfo.GenericTypeArguments;
         }
+
+        public static Type[] GetInterfaces(this TypeInfo typeInfo)
+        {
+            return typeInfo.ImplementedInterfaces;
+        }
     }
 #endif
 }
