@@ -145,3 +145,35 @@
         }
     }
 }
+
+namespace System.Reflection
+{
+#if !NETFX_CORE
+    static class TypeExtensions
+    {
+        public static Type GetTypeInfo(this Type type)
+        {
+            return type;
+        }
+    }
+
+
+    static class PropertyInfoExtensions
+    {
+        const BindingFlags SetValueFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+
+        public static void SetValue(this PropertyInfo propertyInfo, object instance, object value)
+        {
+            propertyInfo.SetValue(instance, value, SetValueFlags, null, null, null);
+        }
+    }
+#else
+    static class TypeInfoExtensions
+    {
+        public static Type[] GetGenericArguments(this TypeInfo typeInfo)
+        {
+            return typeInfo.GenericTypeArguments;
+        }
+    }
+#endif
+}
