@@ -1,4 +1,6 @@
-﻿namespace Internals.Extensions
+﻿using System.Linq;
+
+namespace Internals.Extensions
 {
     using System;
     using System.Collections.Generic;
@@ -26,10 +28,13 @@
 #else
         public static IEnumerable<PropertyInfo> GetAllProperties(this Type type)
         {
-            //BindingFlags.Public | BindingFlags.Instance;
-
             var typeInfo = type.GetTypeInfo();
 
+            return GetAllProperties(typeInfo);
+        }
+
+        public static IEnumerable<PropertyInfo> GetAllProperties(this TypeInfo typeInfo)
+        {
             if (typeInfo.BaseType != null)
                 foreach (var prop in GetAllProperties(typeInfo.BaseType))
                     yield return prop;
@@ -195,7 +200,17 @@ namespace System.Reflection
 
         public static Type[] GetInterfaces(this TypeInfo typeInfo)
         {
-            return typeInfo.ImplementedInterfaces;
+            return typeInfo.ImplementedInterfaces.ToArray();
+        }
+
+        public static MethodInfo GetGetMethod(this PropertyInfo typeInfo, bool includeNonPublic = false)
+        {
+            return typeInfo.GetMethod;
+        }
+
+        public static MethodInfo GetSetMethod(this PropertyInfo typeInfo, bool includeNonPublic = false)
+        {
+            return typeInfo.SetMethod;
         }
     }
 #endif
