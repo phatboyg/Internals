@@ -22,11 +22,7 @@
 
         static Enumeration()
         {
-#if NET35
-            _cache = new ReaderWriterLockedCache<Type, EnumerationInfo>(new DictionaryCache<Type, EnumerationInfo>(type => new EnumerationInfo(type)));
-#else
             _cache = new ConcurrentCache<Type, EnumerationInfo>(type => new EnumerationInfo(type));
-#endif
         }
 
         protected Enumeration()

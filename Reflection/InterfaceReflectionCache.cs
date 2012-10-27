@@ -12,21 +12,12 @@ namespace Internals.Reflection
 
         public InterfaceReflectionCache()
         {
-#if NET35
-            _cache = new ReaderWriterLockedCache<Type, Cache<Type, Type>>(new DictionaryCache<Type, Cache<Type,Type>>(typeKey =>
-            {
-                MissingValueProvider<Type, Type> missingValueProvider = x => GetInterfaceInternal(typeKey, x);
-
-                return new ReaderWriterLockedCache<Type, Type>(new DictionaryCache<Type,Type>(missingValueProvider));
-            }));
-#else
             _cache = new ConcurrentCache<Type, Cache<Type, Type>>(typeKey =>
                 {
                     MissingValueProvider<Type, Type> missingValueProvider = x => GetInterfaceInternal(typeKey, x);
 
                     return new ConcurrentCache<Type, Type>(missingValueProvider);
                 });
-#endif
         }
 
         Type GetInterfaceInternal(Type type, Type interfaceType)

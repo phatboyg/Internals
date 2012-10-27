@@ -1,5 +1,7 @@
 namespace Internals.Caching
 {
+    using System.Collections.Generic;
+
 #if !NET35
     using System;
     using System.Collections;
@@ -326,6 +328,68 @@ namespace Internals.Caching
             throw new InvalidOperationException("No default key accessor has been specified");
         }
     }
+#else
+    class ConcurrentCache<TKey, TValue> :
+        ReaderWriterLockedCache<TKey,TValue>
+    {
+        public ConcurrentCache()
+            : base(new DictionaryCache<TKey, TValue>())
+        {
+        }
 
+        public ConcurrentCache(MissingValueProvider<TKey, TValue> missingValueProvider)
+            : this()
+        {
+            MissingValueProvider = missingValueProvider;
+        }
+
+        public ConcurrentCache(IEqualityComparer<TKey> equalityComparer)
+            : base(new DictionaryCache<TKey, TValue>(equalityComparer))
+        {
+        }
+
+        public ConcurrentCache(KeySelector<TKey, TValue> keySelector)
+            : base(new DictionaryCache<TKey, TValue>(keySelector))
+        {
+        }
+
+        public ConcurrentCache(KeySelector<TKey, TValue> keySelector, IEnumerable<TValue> values)
+            : this(keySelector)
+        {
+            Fill(values);
+        }
+
+        public ConcurrentCache(IEqualityComparer<TKey> equalityComparer,
+            MissingValueProvider<TKey, TValue> missingValueProvider)
+            : this(equalityComparer)
+        {
+            MissingValueProvider = missingValueProvider;
+        }
+
+        public ConcurrentCache(IEnumerable<KeyValuePair<TKey, TValue>> values)
+            : base(new DictionaryCache<TKey, TValue>(values))
+        {
+        }
+
+        public ConcurrentCache(IDictionary<TKey, TValue> values,
+            MissingValueProvider<TKey, TValue> missingValueProvider)
+            : this(values)
+        {
+            MissingValueProvider = missingValueProvider;
+        }
+
+        public ConcurrentCache(IEnumerable<KeyValuePair<TKey, TValue>> values, IEqualityComparer<TKey> equalityComparer)
+            : base(new DictionaryCache<TKey, TValue>(values, equalityComparer))
+        {
+        }
+
+        public ConcurrentCache(IDictionary<TKey, TValue> values,
+            IEqualityComparer<TKey> equalityComparer,
+            MissingValueProvider<TKey, TValue> missingValueProvider)
+            : this(values, equalityComparer)
+        {
+            MissingValueProvider = missingValueProvider;
+        }
+    }
 #endif
 }

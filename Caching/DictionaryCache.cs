@@ -54,6 +54,11 @@ namespace Internals.Caching
             _missingValueProvider = missingValueProvider;
         }
 
+        public DictionaryCache(IEnumerable<KeyValuePair<TKey, TValue>> values)
+        {
+            _values = values.ToDictionary(x => x.Key, x => x.Value);
+        }
+
         public DictionaryCache(IDictionary<TKey, TValue> values) :
             this(values, true)
         {
@@ -79,6 +84,11 @@ namespace Internals.Caching
             : this(values, copy)
         {
             _missingValueProvider = missingValueProvider;
+        }
+
+        public DictionaryCache(IEnumerable<KeyValuePair<TKey, TValue>> values, IEqualityComparer<TKey> equalityComparer)
+        {
+            _values = values.ToDictionary(x => x.Key, x => x.Value, equalityComparer);
         }
 
         public DictionaryCache(IDictionary<TKey, TValue> values, IEqualityComparer<TKey> equalityComparer)
