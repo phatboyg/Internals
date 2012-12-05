@@ -216,8 +216,15 @@ namespace Internals.Caching
 
         public void Add(TKey key, TValue value)
         {
-            _values.Add(key, value);
-            _valueAddedCallback(key, value);
+            try
+            {
+                _values.Add(key, value);
+                _valueAddedCallback(key, value);
+            }
+            catch (ArgumentException)
+            {
+                _duplicateValueAdded(key, value);
+            }
         }
 
         public void AddValue(TValue value)
