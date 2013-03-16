@@ -7,8 +7,8 @@
         bool Enabled { get; }
     }
 
-    static class CodePath<T>
-        where T : class, Mode, new()
+    static class CodePath<TMode>
+        where TMode : class, Mode, new()
     {
         // ReSharper disable StaticFieldInGenericType
         static Mode _flag;
@@ -16,7 +16,7 @@
 
         static Mode Flag
         {
-            get { return _flag ?? (_flag = new T()); }
+            get { return _flag ?? (_flag = new TMode()); }
         }
 
         public static void Set(Mode flag)
