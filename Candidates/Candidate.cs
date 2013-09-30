@@ -5,6 +5,7 @@ namespace Internals.Candidates
     using System.Collections.Generic;
     using System.Linq;
 
+#if !NET35
     /// <summary>
     /// A single value candidate for conditional checks
     /// </summary>
@@ -330,4 +331,5 @@ namespace Internals.Candidates
             }
         }
     }
+#endif
 }
