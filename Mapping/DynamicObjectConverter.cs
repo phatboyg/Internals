@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Extensions;
     using Reflection;
 
 
@@ -69,22 +70,70 @@
                     (ObjectMapper<TImplementation>)Activator.CreateInstance(converterType, property, elementConverter);
             }
 
-            //            if (valueType.HasInterface(typeof(IEnumerable<>)))
-            //            {
-            //                Type[] genericArguments = valueType.GetClosingArguments(typeof(IEnumerable<>)).ToArray();
-            //
-            ////                if (valueType.HasInterface(typeof(IDictionary<,>)))
-            ////                    return CreateDictionarySerializer(type, genericArguments[0], genericArguments[1]);
-            ////
-            ////                if (type.HasInterface(typeof(IList<>)) || type.ImplementsGeneric(typeof(IEnumerable<>)))
-            ////                    return CreateListSerializer(type, genericArguments[0]);
-            //            }
-            //
             if (valueType.IsValueType || valueType == typeof(string))
                 return new ValueObjectMapper<TImplementation>(property);
 
-            return new ObjectObjectMapper<TImplementation>(property,
-                _cache.GetConverter(valueType));
+            if (valueType.ClosesType(typeof(IEnumerable<>)))
+            {
+                if (valueType.ClosesType(typeof(IDictionary<,>)))
+                {
+                    Type[] genericArguments = valueType.GetClosingArguments(typeof(IDictionary<,>)).ToArray();
+
+                    Type keyType = genericArguments[0];
+                    Type elementType = genericArguments[1];
+
+
+                    if (keyType.IsValueType || keyType == typeof(string))
+                    {
+                        if (elementType.IsValueType || elementType == typeof(string))
+                        {
+                            Type valueConverterType =
+                                typeof(ValueValueDictionaryObjectMapper<,,>).MakeGenericType(typeof(TImplementation),
+                                    keyType, elementType);
+                            return (ObjectMapper<TImplementation>)Activator.CreateInstance(valueConverterType, property);
+                        }
+                        else
+                        {
+                            ObjectConverter elementConverter = _cache.GetConverter(elementType);
+                            Type valueConverterType =
+                                typeof(ValueObjectDictionaryObjectMapper<,,>).MakeGenericType(typeof(TImplementation),
+                                    keyType, elementType);
+                            return
+                                (ObjectMapper<TImplementation>)
+                                Activator.CreateInstance(valueConverterType, property, elementConverter);
+                        }
+                    }
+
+                    throw new InvalidOperationException("A dictionary with a reference type key is not supported: "
+                                                        + property.Property.Name);
+                }
+
+
+                if (valueType.ClosesType(typeof(IList<>)) || valueType.ClosesType(typeof(IEnumerable<>)))
+                {
+                    Type[] genericArguments = valueType.GetClosingArguments(typeof(IEnumerable<>)).ToArray();
+                    Type elementType = genericArguments[0];
+
+                    if (elementType.IsValueType || elementType == typeof(string))
+                    {
+                        Type valueConverterType =
+                            typeof(ValueListObjectMapper<,>).MakeGenericType(typeof(TImplementation),
+                                elementType);
+
+                        return (ObjectMapper<TImplementation>)Activator.CreateInstance(valueConverterType, property);
+                    }
+
+                    ObjectConverter elementConverter = _cache.GetConverter(elementType);
+
+                    Type converterType = typeof(ObjectListObjectMapper<,>).MakeGenericType(typeof(TImplementation),
+                        elementType);
+
+                    return (ObjectMapper<TImplementation>)Activator.CreateInstance(converterType, property,
+                        elementConverter);
+                }
+            }
+
+            return new ObjectObjectMapper<TImplementation>(property, _cache.GetConverter(valueType));
         }
     }
 }
