@@ -14,25 +14,24 @@
             _property = property;
         }
 
-        public void ApplyTo(T obj, IDictionary<string, object> dictionary)
+        public void ApplyTo(T obj, ObjectValueProvider valueProvider)
         {
-            object value;
-            if (!dictionary.TryGetValue(_property.Property.Name, out value))
+            ArrayValueProvider values;
+            if (!valueProvider.TryGetValue(_property.Property.Name, out values))
                 return;
 
-            if (value == null)
-                return;
+            var elements = new List<TElement>();
 
-            var values = value as object[];
-            if (values == null)
-                return;
+            for (int i = 0;; i++)
+            {
+                TElement element;
+                if (!values.TryGetValue(i, out element))
+                    break;
 
-            var elements = new TElement[values.Length];
+                elements.Add(element);
+            }
 
-            for (int i = 0; i < values.Length; i++)
-                elements[i] = (TElement)values[i];
-
-            _property.Set(obj, elements);
+            _property.Set(obj, elements.ToArray());
         }
     }
 }

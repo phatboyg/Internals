@@ -17,29 +17,22 @@
             _converter = converter;
         }
 
-        public void ApplyTo(T obj, IDictionary<string, object> dictionary)
+        public void ApplyTo(T obj, ObjectValueProvider valueProvider)
         {
-            object value;
-            if (!dictionary.TryGetValue(_property.Property.Name, out value))
+            ArrayValueProvider values;
+            if (!valueProvider.TryGetValue(_property.Property.Name, out values))
                 return;
 
-            if (value == null)
-                return;
+            var elements = new List<TElement>();
 
-            var values = value as object[];
-            if (values == null)
-                return;
-
-            var elements = new List<TElement>(values.Length);
-
-            for (int i = 0; i < values.Length; i++)
+            for (int i = 0;; i++)
             {
-                var elementDictionary = values[i] as IDictionary<string, object>;
-                if (elementDictionary != null)
-                {
-                    var element = (TElement)_converter.GetObject(elementDictionary);
-                    elements.Add(element);
-                }
+                ObjectValueProvider elementValueProvider;
+                if (!values.TryGetValue(i, out elementValueProvider))
+                    break;
+
+                var element = (TElement)_converter.GetObject(elementValueProvider);
+                elements.Add(element);
             }
 
             _property.Set(obj, elements);

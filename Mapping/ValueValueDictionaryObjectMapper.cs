@@ -14,36 +14,27 @@
             _property = property;
         }
 
-        public void ApplyTo(T obj, IDictionary<string, object> dictionary)
+        public void ApplyTo(T obj, ObjectValueProvider valueProvider)
         {
-            object value;
-            if (!dictionary.TryGetValue(_property.Property.Name, out value))
-                return;
-
-            if (value == null)
-                return;
-
-            var values = value as object[];
-            if (values == null)
+            ArrayValueProvider values;
+            if (!valueProvider.TryGetValue(_property.Property.Name, out values))
                 return;
 
             var elements = new Dictionary<TKey, TValue>();
 
-            for (int i = 0; i < values.Length; i++)
+            for (int i = 0;; i++)
             {
-                var elementArray = values[i] as object[];
-                if (elementArray != null)
+                ArrayValueProvider elementArray;
+                if (!values.TryGetValue(i, out elementArray))
+                    break;
+
+                TKey elementKey;
+                if (elementArray.TryGetValue(0, out elementKey))
                 {
-                    if (elementArray.Length >= 1)
-                    {
-                        var elementKey = (TKey)elementArray[0];
+                    TValue elementValue;
+                    elementArray.TryGetValue(1, out elementValue);
 
-                        TValue elementValue = default(TValue);
-                        if (elementArray.Length >= 2)
-                            elementValue = (TValue)elementArray[1];
-
-                        elements[elementKey] = elementValue;
-                    }
+                    elements[elementKey] = elementValue;
                 }
             }
 

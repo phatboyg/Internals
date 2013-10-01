@@ -25,13 +25,12 @@
                 .ToArray();
         }
 
-        public object GetObject(IDictionary<string, object> dictionary)
+        public object GetObject(ObjectValueProvider valueProvider)
         {
             var implementation = new TImplementation();
 
             for (int i = 0; i < _converters.Length; i++)
-                _converters[i].ApplyTo(implementation, dictionary);
-
+                _converters[i].ApplyTo(implementation, valueProvider);
 
             return implementation;
         }

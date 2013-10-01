@@ -1,6 +1,5 @@
 ﻿namespace Internals.Mapping
 {
-    using System.Collections.Generic;
     using Reflection;
 
 
@@ -17,22 +16,14 @@
             _converter = converter;
         }
 
-        public void ApplyTo(T obj, IDictionary<string, object> dictionary)
+        public void ApplyTo(T obj, ObjectValueProvider valueProvider)
         {
-            object value;
-            if (dictionary.TryGetValue(_property.Property.Name, out value))
+            ObjectValueProvider propertyProvider;
+            if (valueProvider.TryGetValue(_property.Property.Name, out propertyProvider))
             {
-                if (value != null)
-                {
-                    var propertyDictionary = value as IDictionary<string, object>;
+                object propertyObj = _converter.GetObject(propertyProvider);
 
-                    if (propertyDictionary != null)
-                    {
-                        object propertyObj = _converter.GetObject(propertyDictionary);
-
-                        _property.Set(obj, propertyObj);
-                    }
-                }
+                _property.Set(obj, propertyObj);
             }
         }
     }

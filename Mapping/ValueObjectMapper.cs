@@ -1,6 +1,5 @@
 ﻿namespace Internals.Mapping
 {
-    using System.Collections.Generic;
     using Reflection;
 
 
@@ -14,10 +13,10 @@
             _property = property;
         }
 
-        public void ApplyTo(T obj, IDictionary<string, object> dictionary)
+        public void ApplyTo(T obj, ObjectValueProvider valueProvider)
         {
             object value;
-            if (dictionary.TryGetValue(_property.Property.Name, out value))
+            if (valueProvider.TryGetValue(_property.Property.Name, out value))
             {
                 if (value != null)
                     _property.Set(obj, value);
