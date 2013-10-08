@@ -39,8 +39,8 @@
 
         DictionaryMapper<T> GetDictionaryMapper(ReadOnlyProperty<T> property, Type valueType)
         {
-            Type underlyingType = Nullable.GetUnderlyingType(valueType);
-            if (underlyingType != null)
+            Type underlyingType;
+            if(valueType.IsNullable(out underlyingType))
             {
                 Type converterType = typeof(NullableValueDictionaryMapper<,>).MakeGenericType(typeof(T),
                     underlyingType);
@@ -63,20 +63,46 @@
                 return (DictionaryMapper<T>)Activator.CreateInstance(converterType, property, elementConverter);
             }
 
-            if (valueType.HasInterface(typeof(IEnumerable<>)))
-            {
-                Type[] genericArguments = valueType.GetClosingArguments(typeof(IEnumerable<>)).ToArray();
-
-//                if (valueType.HasInterface(typeof(IDictionary<,>)))
-//                    return CreateDictionarySerializer(type, genericArguments[0], genericArguments[1]);
-//
-//                if (type.HasInterface(typeof(IList<>)) || type.ImplementsGeneric(typeof(IEnumerable<>)))
-//                    return CreateListSerializer(type, genericArguments[0]);
-            }
-
             if (valueType.IsValueType || valueType == typeof(string))
                 return new ValueDictionaryMapper<T>(property);
 
+            if (valueType.HasInterface(typeof(IEnumerable<>)))
+            {
+                Type elementType = valueType.GetClosingArguments(typeof(IEnumerable<>)).Single();
+
+                if (valueType.ClosesType(typeof(IDictionary<,>)))
+                {
+                    var arguments = valueType.GetClosingArguments(typeof(IDictionary<,>)).ToArray();
+                    var keyType = arguments[0];
+                    if (keyType.IsValueType || keyType == typeof(string))
+                    {
+                        elementType = arguments[1];
+                        if (elementType.IsValueType || elementType == typeof(string))
+                        {
+                            Type converterType = typeof(ValueValueDictionaryDictionaryMapper<,,>).MakeGenericType(typeof(T),
+                                keyType, elementType);
+                            return (DictionaryMapper<T>)Activator.CreateInstance(converterType, property);
+                        }
+                        else
+                        {
+                            Type converterType = typeof(ValueObjectDictionaryDictionaryMapper<,,>).MakeGenericType(typeof(T),
+                                keyType, elementType);
+                            DictionaryConverter elementConverter = _cache.GetConverter(elementType);
+                            return (DictionaryMapper<T>)Activator.CreateInstance(converterType, property, elementConverter);
+                        }
+                    }
+
+                    throw new InvalidOperationException("Unable to map a reference type key dictionary");
+                }
+
+                if (valueType.ClosesType(typeof(IList<>)) || valueType.ClosesType(typeof(IEnumerable<>)))
+                {
+                    Type converterType = typeof(ObjectListDictionaryMapper<,>).MakeGenericType(typeof(T), elementType);
+                    DictionaryConverter elementConverter = _cache.GetConverter(elementType);
+
+                    return (DictionaryMapper<T>)Activator.CreateInstance(converterType, property, elementConverter);
+                }
+            }
             return new ObjectDictionaryMapper<T>(property, _cache.GetConverter(valueType));
         }
     }

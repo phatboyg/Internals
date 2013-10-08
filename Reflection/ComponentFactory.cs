@@ -118,7 +118,7 @@ namespace Internals.Reflection
         /// <param name="implementationType">The implementation type to add</param>
         public static void Add(Type addType, Type implementationType)
         {
-            if (!implementationType.IsConcreteType())
+            if (!implementationType.IsConcrete())
                 throw new ArgumentException(string.Format("The type '{0}' must be a concrete type",
                     addType.Name));
 #if !NETFX_CORE
@@ -157,7 +157,7 @@ namespace Internals.Reflection
         /// <param name="dependencies"></param>
         public static void Add(Type addType, Type implementationType, params Type[] dependencies)
         {
-            if (!implementationType.IsConcreteType())
+            if (!implementationType.IsConcrete())
                 throw new ArgumentException(string.Format("The implementation type '{0}' must be a concrete type",
                     implementationType.Name));
 #if !NETFX_CORE

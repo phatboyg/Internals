@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace Internals.Extensions
+﻿namespace Internals.Extensions
 {
     using System;
     using System.Collections.Generic;
@@ -105,7 +103,7 @@ namespace Internals.Extensions
         /// </summary>
         /// <param name="type">The type to check</param>
         /// <returns>True if the type can be constructed, otherwise false.</returns>
-        public static bool IsConcreteType(this Type type)
+        public static bool IsConcrete(this Type type)
         {
 #if !NETFX_CORE
             return !type.IsAbstract && !type.IsInterface;
@@ -125,7 +123,7 @@ namespace Internals.Extensions
         public static bool IsConcreteAndAssignableTo(this Type type, Type assignableType)
         {
 #if !NETFX_CORE
-            return IsConcreteType(type) && assignableType.IsAssignableFrom(type);
+            return IsConcrete(type) && assignableType.IsAssignableFrom(type);
 #else
             return IsConcreteType(type) && assignableType.GetTypeInfo().IsAssignableFrom(type.GetTypeInfo());
 #endif
@@ -163,9 +161,44 @@ namespace Internals.Extensions
         public static bool IsConcreteAndAssignableTo<T>(this Type type)
         {
 #if !NETFX_CORE
-            return IsConcreteType(type) && typeof(T).IsAssignableFrom(type);
+            return IsConcrete(type) && typeof(T).IsAssignableFrom(type);
 #else
             return IsConcreteType(type) && typeof(T).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo());
+#endif
+        }
+
+        /// <summary>
+        /// Determines if the type is a nullable type
+        /// </summary>
+        /// <param name="type">The type</param>
+        /// <returns>True if the type can be null</returns>
+        public static bool IsNullable(this Type type)
+        {
+#if !NETFX_CORE
+            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+#else
+            var typeInfo = type.GetTypeInfo();
+            return typeInfo.IsGenericType && typeInfo.GetGenericTypeDefinition() == typeof(Nullable<>).GetTypeInfo();
+#endif
+        }
+
+        /// <summary>
+        /// Determines if the type is a nullable type
+        /// </summary>
+        /// <param name="type">The type</param>
+        /// <param name="underlyingType">The underlying type of the nullable</param>
+        /// <returns>True if the type can be null</returns>
+        public static bool IsNullable(this Type type, out Type underlyingType)
+        {
+#if !NETFX_CORE
+            bool isNullable = type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+            underlyingType = isNullable ? Nullable.GetUnderlyingType(type) : null;
+            return isNullable;
+#else
+            var typeInfo = type.GetTypeInfo();
+            bool isNullable = typeInfo.IsGenericType && typeInfo.GetGenericTypeDefinition() == typeof(Nullable<>).GetTypeInfo();
+            underlyingType = isNullable ? Nullable.GetUnderlyingType(type) : null;
+            return isNullable;
 #endif
         }
 
@@ -181,6 +214,21 @@ namespace Internals.Extensions
 #else
             var typeInfo = type.GetTypeInfo();
             return typeInfo.IsGenericTypeDefinition || typeInfo.ContainsGenericParameters;
+#endif
+        }
+
+        /// <summary>
+        /// Determines if a type can be null
+        /// </summary>
+        /// <param name="type">The type</param>
+        /// <returns>True if the type can be null</returns>
+        public static bool CanBeNull(this Type type)
+        {
+#if !NETFX_CORE
+            return !type.IsValueType || type.IsNullable() || type == typeof(string);
+#else
+            var typeInfo = type.GetTypeInfo();
+            return !typeInfo.IsValueType || type.IsNullable() || typeInfo == typeof(string);
 #endif
         }
 
