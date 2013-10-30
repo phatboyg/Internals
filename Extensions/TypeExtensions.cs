@@ -125,7 +125,7 @@
 #if !NETFX_CORE
             return IsConcrete(type) && assignableType.IsAssignableFrom(type);
 #else
-            return IsConcreteType(type) && assignableType.GetTypeInfo().IsAssignableFrom(type.GetTypeInfo());
+            return IsConcrete(type) && assignableType.GetTypeInfo().IsAssignableFrom(type.GetTypeInfo());
 #endif
         }
 
@@ -163,7 +163,7 @@
 #if !NETFX_CORE
             return IsConcrete(type) && typeof(T).IsAssignableFrom(type);
 #else
-            return IsConcreteType(type) && typeof(T).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo());
+            return IsConcrete(type) && typeof(T).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo());
 #endif
         }
 
@@ -241,6 +241,8 @@
 
 namespace System.Reflection
 {
+    using Linq;
+
 #if !NETFX_CORE
     static class TypeExtensions
     {
